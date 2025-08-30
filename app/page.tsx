@@ -668,6 +668,68 @@ export default function SolanaWalletApp() {
               </div>
             </section>
 
+             {/* Stake Section */}
+            <section className="py-16">
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-foreground mb-4">Stake de Garantía</h2>
+                  <p className="text-lg text-muted-foreground">Cómo funciona el stake en nuestro sistema de rifas.</p>
+                </div>
+
+                <div className="mt-12 max-w-4xl mx-auto">
+                  <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 animate-slide-up">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2 text-green-800">
+                        <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                        <span>Stake de Garantía</span>
+                      </CardTitle>
+                      <CardDescription className="text-green-700">
+                        El stake funciona como garantía de transparencia, reemplazando el rol de Lotería.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-800">0.91 SOL</div>
+                          <div className="text-sm text-green-600">Monto Retenido</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-800">1.8%</div>
+                          <div className="text-sm text-green-600">Progreso del Stake</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-800">50 SOL</div>
+                          <div className="text-sm text-green-600">Objetivo</div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-green-700">Progreso del Stake:</span>
+                          <span className="font-semibold text-green-800">0.91 / 50 SOL</span>
+                        </div>
+                        <div className="w-full bg-green-200 rounded-full h-3">
+                          <div
+                            className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-500"
+                            style={{ width: "1.821%" }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="bg-white/50 p-4 rounded-lg border border-green-200">
+                        <p className="text-sm text-green-700 leading-relaxed">
+                          <strong>¿Cómo funciona?</strong> Un porcentaje de cada venta se retiene como stake de
+                          garantía. Este fondo asegura la transparencia del proceso y reemplaza la necesidad de una
+                          autoridad central como Lotería Nacional. Los fondos se liberan automáticamente al finalizar
+                          cada rifa.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </section>
+
             {/* Features Section */}
             <section className="py-16">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -757,68 +819,6 @@ export default function SolanaWalletApp() {
                       </p>
                     </div>
                   </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Stake Section */}
-            <section className="py-16">
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-foreground mb-4">Stake de Garantía</h2>
-                  <p className="text-lg text-muted-foreground">Cómo funciona el stake en nuestro sistema de rifas.</p>
-                </div>
-
-                <div className="mt-12 max-w-4xl mx-auto">
-                  <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 animate-slide-up">
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2 text-green-800">
-                        <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-                          <CheckCircle className="w-4 h-4 text-white" />
-                        </div>
-                        <span>Stake de Garantía</span>
-                      </CardTitle>
-                      <CardDescription className="text-green-700">
-                        El stake funciona como garantía de transparencia, reemplazando el rol de Lotería.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-800">0.91 SOL</div>
-                          <div className="text-sm text-green-600">Monto Retenido</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-800">1.8%</div>
-                          <div className="text-sm text-green-600">Progreso del Stake</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-800">50 SOL</div>
-                          <div className="text-sm text-green-600">Objetivo</div>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-green-700">Progreso del Stake:</span>
-                          <span className="font-semibold text-green-800">0.91 / 50 SOL</span>
-                        </div>
-                        <div className="w-full bg-green-200 rounded-full h-3">
-                          <div
-                            className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-500"
-                            style={{ width: "1.821%" }}
-                          ></div>
-                        </div>
-                      </div>
-                      <div className="bg-white/50 p-4 rounded-lg border border-green-200">
-                        <p className="text-sm text-green-700 leading-relaxed">
-                          <strong>¿Cómo funciona?</strong> Un porcentaje de cada venta se retiene como stake de
-                          garantía. Este fondo asegura la transparencia del proceso y reemplaza la necesidad de una
-                          autoridad central como Lotería Nacional. Los fondos se liberan automáticamente al finalizar
-                          cada rifa.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </div>
               </div>
             </section>
