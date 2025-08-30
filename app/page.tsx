@@ -19,51 +19,7 @@ import {
   Hash,
   ArrowRight,
 } from "lucide-react"
-import { Connection } from "@solana/web3.js"
-
-const createConfetti = () => {
-  const colors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57", "#ff9ff3", "#54a0ff"]
-  const confettiCount = 50
-
-  for (let i = 0; i < confettiCount; i++) {
-    const confetti = document.createElement("div")
-    confetti.style.position = "fixed"
-    confetti.style.left = Math.random() * 100 + "vw"
-    confetti.style.top = "-10px"
-    confetti.style.width = "10px"
-    confetti.style.height = "10px"
-    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]
-    confetti.style.borderRadius = "50%"
-    confetti.style.pointerEvents = "none"
-    confetti.style.zIndex = "9999"
-    confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s linear forwards`
-
-    document.body.appendChild(confetti)
-
-    setTimeout(() => {
-      confetti.remove()
-    }, 5000)
-  }
-}
-
-const playSuccessSound = () => {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-  const oscillator = audioContext.createOscillator()
-  const gainNode = audioContext.createGain()
-
-  oscillator.connect(gainNode)
-  gainNode.connect(audioContext.destination)
-
-  oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime) // C5
-  oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1) // E5
-  oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2) // G5
-
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5)
-
-  oscillator.start(audioContext.currentTime)
-  oscillator.stop(audioContext.currentTime + 0.5)
-}
+import { WsProvider } from "@polkadot/api"
 
 // Phantom wallet types
 interface PhantomProvider {
@@ -79,7 +35,7 @@ interface PhantomProvider {
 interface Raffle {
   id: string
   title: string
-  ticketPrice: number // in SOL
+  ticketPrice: number // in DOT
   ticketsIssued: number
   maxTickets: number
   organizer: string
@@ -101,7 +57,7 @@ interface NFTTicket {
   qrCode: string
 }
 
-// Mock raffle data - will be replaced with Solana contract data
+// Mock raffle data - will be replaced with Polkadot contract data
 const mockRaffles: Raffle[] = [
   {
     id: "1",
@@ -150,10 +106,128 @@ const mockRaffles: Raffle[] = [
 declare global {
   interface Window {
     solana?: PhantomProvider
+    injectedWeb3?: { "polkadot-js": PolkadotProvider }
   }
 }
 
-const connection = new Connection("https://api.mainnet-beta.solana.com") // Replace with your Solana RPC endpoint
+const createConfetti = () => {
+  const colors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57", "#ff9ff3", "#54a0ff"]
+  const confettiCount = 50
+
+  for (let i = 0; i < confettiCount; i++) {
+    const confetti = document.createElement("div")
+    confetti.style.position = "fixed"
+    confetti.style.left = Math.random() * 100 + "vw"
+    confetti.style.top = "-10px"
+    confetti.style.width = "10px"
+    confetti.style.height = "10px"
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]
+    confetti.style.borderRadius = "50%"
+    confetti.style.pointerEvents = "none"
+    confetti.style.zIndex = "9999"
+    confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s linear forwards`
+
+    document.body.appendChild(confetti)
+
+    setTimeout(() => {
+      confetti.remove()
+    }, 5000)
+  }
+}
+
+const playSuccessSound = () => {
+  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+  const oscillator = audioContext.createOscillator()
+  const gainNode = audioContext.createGain()
+
+  oscillator.connect(gainNode)
+  gainNode.connect(audioContext.destination)
+
+  oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime) // C5
+  oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1) // E5
+  oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2) // G5
+
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5)
+
+  oscillator.start(audioContext.currentTime)
+  oscillator.stop(audioContext.currentTime + 0.5)
+}
+
+// Polkadot.js extension types
+interface PolkadotProvider {
+  isPolkadotJs: boolean
+  connect: () => Promise<{ address: string }>
+  disconnect: () => Promise<void>
+  on: (event: string, callback: (args: any) => void) => void
+  selectedAccount: { address: string } | null
+  isConnected: boolean
+}
+
+// NFT ticket interface
+interface NFTTicket {
+  id: string
+  raffleId: string
+  raffleTitle: string
+  ticketNumber: number
+  purchaseDate: string
+  qrCode: string
+}
+
+// Polkadot contract data
+const polkadotRaffles: Raffle[] = [
+  {
+    id: "1",
+    title: "Rifa AVEIT 2025",
+    ticketPrice: 0.1,
+    ticketsIssued: 45,
+    maxTickets: 100,
+    organizer: "8sj...39F",
+    isActive: true, // Ensuring raffle is active
+    stakePercent: 10,
+    feePercent: 5,
+    totalRaised: 4.5,
+    participants: [],
+    winner: null,
+  },
+  {
+    id: "2",
+    title: "Rifa Tech UTN",
+    ticketPrice: 0.05,
+    ticketsIssued: 23,
+    maxTickets: 50,
+    organizer: "9kL...28A",
+    isActive: true, // Ensuring raffle is active
+    stakePercent: 15,
+    feePercent: 5,
+    totalRaised: 1.15,
+    participants: [],
+    winner: null,
+  },
+  {
+    id: "3",
+    title: "Rifa Blockchain FRC",
+    ticketPrice: 0.2,
+    ticketsIssued: 12,
+    maxTickets: 30,
+    organizer: "7mN...45B",
+    isActive: true, // Ensuring raffle is active
+    stakePercent: 12,
+    feePercent: 5,
+    totalRaised: 2.4,
+    participants: [],
+    winner: null,
+  },
+]
+
+declare global {
+  interface Window {
+    solana?: PhantomProvider
+    injectedWeb3?: { "polkadot-js": PolkadotProvider }
+  }
+}
+
+const wsProvider = new WsProvider("wss://rpc.polkadot.io")
 
 const generateRaffleData = () => {
   return Array.from({ length: 24 }, (_, i) => ({
@@ -176,7 +250,7 @@ const topBuyers = [
     tickets: 15,
     amount: 15000,
     avatar: "/diverse-user-avatars.png",
-    specialty: "Wallet: 0x7A9f...3B2c",
+    specialty: "Wallet: 5GrwvaEF...3fhX",
   },
   {
     id: 2,
@@ -184,7 +258,7 @@ const topBuyers = [
     tickets: 12,
     amount: 12000,
     avatar: "/diverse-user-avatars.png",
-    specialty: "Wallet: 0x4E8d...9F1a",
+    specialty: "Wallet: 5FHneW46...xGXg",
   },
   {
     id: 3,
@@ -192,7 +266,7 @@ const topBuyers = [
     tickets: 10,
     amount: 10000,
     avatar: "/diverse-user-avatars.png",
-    specialty: "Wallet: 0x2C5b...7D4e",
+    specialty: "Wallet: 5DAAnrj7...VjCq",
   },
   {
     id: 4,
@@ -200,7 +274,7 @@ const topBuyers = [
     tickets: 8,
     amount: 8000,
     avatar: "/diverse-user-avatars.png",
-    specialty: "Wallet: 0x9A1f...6E8c",
+    specialty: "Wallet: 5HGjWAeF...Mn7c",
   },
   {
     id: 5,
@@ -208,7 +282,7 @@ const topBuyers = [
     tickets: 7,
     amount: 7000,
     avatar: "/diverse-user-avatars.png",
-    specialty: "Wallet: 0x3F7a...2B9d",
+    specialty: "Wallet: 5CiPPseX...R9Ly",
   },
 ]
 
@@ -220,8 +294,8 @@ const prizes = [
   { name: "5to Premio - Voucher", value: 25000, color: "hsl(var(--primary))" },
 ]
 
-export default function SolanaWalletApp() {
-  const [wallet, setWallet] = useState<PhantomProvider | null>(null)
+export default function PolkadotWalletApp() {
+  const [wallet, setWallet] = useState<PolkadotProvider | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [publicKey, setPublicKey] = useState<string>("")
   const [isConnecting, setIsConnecting] = useState(false)
@@ -312,24 +386,24 @@ export default function SolanaWalletApp() {
   }, [])
 
   useEffect(() => {
-    // Check if Phantom wallet is available
-    if (typeof window !== "undefined" && window.solana?.isPhantom) {
-      setWallet(window.solana)
+    // Check if Polkadot.js extension is available
+    if (typeof window !== "undefined" && window.injectedWeb3?.["polkadot-js"]) {
+      setWallet(window.injectedWeb3["polkadot-js"])
 
       // Check if already connected
-      if (window.solana.isConnected && window.solana.publicKey) {
+      if (window.injectedWeb3["polkadot-js"].isConnected && window.injectedWeb3["polkadot-js"].selectedAccount) {
         setIsConnected(true)
-        setPublicKey(window.solana.publicKey.toString())
+        setPublicKey(window.injectedWeb3["polkadot-js"].selectedAccount.address)
       }
 
       // Listen for wallet events
-      window.solana.on("connect", (publicKey: any) => {
-        console.log("[v0] Wallet connected:", publicKey.toString())
+      window.injectedWeb3["polkadot-js"].on("connect", (account: any) => {
+        console.log("[v0] Wallet connected:", account.address)
         setIsConnected(true)
-        setPublicKey(publicKey.toString())
+        setPublicKey(account.address)
       })
 
-      window.solana.on("disconnect", () => {
+      window.injectedWeb3["polkadot-js"].on("disconnect", () => {
         console.log("[v0] Wallet disconnected")
         setIsConnected(false)
         setPublicKey("")
@@ -338,13 +412,13 @@ export default function SolanaWalletApp() {
 
     if (isConnected && publicKey) {
       // Mock admin check - replace with actual contract logic
-      setIsAdmin(publicKey.startsWith("8sj") || publicKey.startsWith("9kL"))
+      setIsAdmin(publicKey.startsWith("5Gr") || publicKey.startsWith("5FH"))
     }
   }, [isConnected, publicKey])
 
   const connectWallet = async () => {
     if (!wallet) {
-      window.open("https://phantom.app/", "_blank")
+      window.open("https://polkadot.js.org/extension/", "_blank")
       return
     }
 
@@ -352,7 +426,7 @@ export default function SolanaWalletApp() {
       setIsConnecting(true)
       const response = await wallet.connect()
       setIsConnected(true)
-      setPublicKey(response.publicKey.toString())
+      setPublicKey(response.address)
     } catch (error) {
       console.error("[v0] Failed to connect wallet:", error)
     } finally {
@@ -421,7 +495,7 @@ export default function SolanaWalletApp() {
       }
 
       // Update raffle data
-      const updatedRaffles = mockRaffles.map((raffle) =>
+      const updatedRaffles = polkadotRaffles.map((raffle) =>
         raffle.id === selectedRaffle.id
           ? {
               ...raffle,
@@ -472,7 +546,7 @@ export default function SolanaWalletApp() {
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
       const raffleData: Raffle = {
-        id: (mockRaffles.length + 1).toString(),
+        id: (polkadotRaffles.length + 1).toString(),
         title: newRaffle.title,
         ticketPrice: Number.parseFloat(newRaffle.ticketPrice),
         ticketsIssued: 0,
@@ -486,7 +560,7 @@ export default function SolanaWalletApp() {
         winner: null,
       }
 
-      mockRaffles.push(raffleData)
+      polkadotRaffles.push(raffleData)
 
       setNewRaffle({
         title: "",
@@ -507,7 +581,7 @@ export default function SolanaWalletApp() {
   }
 
   const closeRaffle = async (raffleId: string) => {
-    const raffle = mockRaffles.find((r) => r.id === raffleId)
+    const raffle = polkadotRaffles.find((r) => r.id === raffleId)
     if (!raffle || raffle.ticketsIssued === 0) {
       alert("No se puede cerrar una rifa sin participantes")
       return
@@ -522,10 +596,10 @@ export default function SolanaWalletApp() {
       const mockWinnerAddress = `${Math.random().toString(36).substring(2, 5)}...${Math.random().toString(36).substring(2, 5)}`
 
       // Update raffle
-      const raffleIndex = mockRaffles.findIndex((r) => r.id === raffleId)
+      const raffleIndex = polkadotRaffles.findIndex((r) => r.id === raffleId)
       if (raffleIndex !== -1) {
-        mockRaffles[raffleIndex].isActive = false
-        mockRaffles[raffleIndex].winner = mockWinnerAddress
+        polkadotRaffles[raffleIndex].isActive = false
+        polkadotRaffles[raffleIndex].winner = mockWinnerAddress
       }
 
       setSelectedWinner({ raffle, winner: mockWinnerAddress })
@@ -654,7 +728,7 @@ export default function SolanaWalletApp() {
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-12 text-pretty max-w-3xl mx-auto leading-relaxed animate-slide-up">
                   Un proyecto de AVEIT que reemplaza la certificación de Lotería con un sistema descentralizado en
-                  Solana.
+                  Polkadot.
                 </p>
 
                 <Button
@@ -668,7 +742,7 @@ export default function SolanaWalletApp() {
               </div>
             </section>
 
-             {/* Stake Section */}
+            {/* Stake Section */}
             <section className="py-16">
               <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
@@ -692,7 +766,7 @@ export default function SolanaWalletApp() {
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-green-800">0.91 SOL</div>
+                          <div className="text-2xl font-bold text-green-800">0.91 DOT</div>
                           <div className="text-sm text-green-600">Monto Retenido</div>
                         </div>
                         <div className="text-center">
@@ -700,14 +774,14 @@ export default function SolanaWalletApp() {
                           <div className="text-sm text-green-600">Progreso del Stake</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-green-800">50 SOL</div>
+                          <div className="text-2xl font-bold text-green-800">50 DOT</div>
                           <div className="text-sm text-green-600">Objetivo</div>
                         </div>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-green-700">Progreso del Stake:</span>
-                          <span className="font-semibold text-green-800">0.91 / 50 SOL</span>
+                          <span className="font-semibold text-green-800">0.91 / 50 DOT</span>
                         </div>
                         <div className="w-full bg-green-200 rounded-full h-3">
                           <div
@@ -742,7 +816,7 @@ export default function SolanaWalletApp() {
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="text-base leading-relaxed">
-                      Cada boleta es un NFT único en la blockchain de Solana, garantizando autenticidad y trazabilidad
+                      Cada boleta es un NFT único en la blockchain de Polkadot, garantizando autenticidad y trazabilidad
                       completa de todas las participaciones.
                     </CardDescription>
                   </CardContent>
@@ -815,7 +889,7 @@ export default function SolanaWalletApp() {
                     <div className="text-left">
                       <h3 className="font-semibold mb-2">Seguridad Garantizada</h3>
                       <p className="text-muted-foreground text-sm">
-                        La blockchain de Solana protege todas las transacciones y datos.
+                        La blockchain de Polkadot protege todas las transacciones y datos.
                       </p>
                     </div>
                   </div>
@@ -832,7 +906,7 @@ export default function SolanaWalletApp() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {mockRaffles.slice(0, 3).map((raffle, index) => (
+                  {polkadotRaffles.slice(0, 3).map((raffle, index) => (
                     <Card
                       key={raffle.id}
                       className="hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 animate-slide-up"
@@ -863,7 +937,7 @@ export default function SolanaWalletApp() {
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Precio por boleta:</span>
-                            <span className="font-semibold text-primary">{raffle.ticketPrice} SOL</span>
+                            <span className="font-semibold text-primary">{raffle.ticketPrice} DOT</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Boletas vendidas:</span>

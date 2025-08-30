@@ -1,6 +1,6 @@
-# RaffleProgram - Contrato de Rifas para Solana
+# RaffleProgram - Contrato de Rifas para Polkadot
 
-Este es un contrato inteligente desarrollado con Seahorse (Python) para crear y gestionar rifas en la blockchain de Solana.
+Este es un contrato inteligente desarrollado con ink! para crear y gestionar rifas en la blockchain de Polkadot.
 
 ## Características
 
@@ -39,16 +39,16 @@ Este es un contrato inteligente desarrollado con Seahorse (Python) para crear y 
 
 ## Compilación
 
-Para compilar este contrato con Seahorse:
+Para compilar este contrato con ink!:
 
 \`\`\`bash
-seahorse build
+cargo contract build
 \`\`\`
 
 ## Despliegue
 
 \`\`\`bash
-anchor deploy
+cargo contract deploy
 \`\`\`
 
 ## Seguridad
