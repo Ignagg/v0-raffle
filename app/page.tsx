@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/progress"
 import {
   Dialog,
   DialogContent,
@@ -14,7 +16,40 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Wallet, Copy, CheckCircle, Ticket, Plus, Settings, Trophy, Shield, Zap, Eye, Sparkles } from "lucide-react"
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts"
+import {
+  Wallet,
+  Copy,
+  CheckCircle,
+  Ticket,
+  Plus,
+  Settings,
+  Trophy,
+  Shield,
+  Zap,
+  Eye,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Award,
+  Crown,
+  Medal,
+  Gift,
+  DollarSign,
+  Clock,
+  Hash,
+} from "lucide-react"
 import { Connection } from "@solana/web3.js"
 
 const createConfetti = () => {
@@ -151,6 +186,71 @@ declare global {
 
 const connection = new Connection("https://api.mainnet-beta.solana.com") // Replace with your Solana RPC endpoint
 
+const generateRaffleData = () => {
+  return Array.from({ length: 24 }, (_, i) => ({
+    time: `${i}:00`,
+    ventas: Math.floor(Math.random() * 15) + 5,
+    ingresos: Math.floor(Math.random() * 3000) + 1000,
+  }))
+}
+
+const raffleNumbers = Array.from({ length: 1000 }, (_, i) => ({
+  number: String(i + 1).padStart(4, "0"),
+  sold: Math.random() > 0.3,
+  buyer: Math.random() > 0.3 ? `Usuario ${Math.floor(Math.random() * 200) + 1}` : null,
+}))
+
+const topBuyers = [
+  {
+    id: 1,
+    name: "Usuario Anónimo #1",
+    tickets: 15,
+    amount: 15000,
+    avatar: "/diverse-user-avatars.png",
+    specialty: "Wallet: 0x7A9f...3B2c",
+  },
+  {
+    id: 2,
+    name: "Usuario Anónimo #2",
+    tickets: 12,
+    amount: 12000,
+    avatar: "/diverse-user-avatars.png",
+    specialty: "Wallet: 0x4E8d...9F1a",
+  },
+  {
+    id: 3,
+    name: "Usuario Anónimo #3",
+    tickets: 10,
+    amount: 10000,
+    avatar: "/diverse-user-avatars.png",
+    specialty: "Wallet: 0x2C5b...7D4e",
+  },
+  {
+    id: 4,
+    name: "Usuario Anónimo #4",
+    tickets: 8,
+    amount: 8000,
+    avatar: "/diverse-user-avatars.png",
+    specialty: "Wallet: 0x9A1f...6E8c",
+  },
+  {
+    id: 5,
+    name: "Usuario Anónimo #5",
+    tickets: 7,
+    amount: 7000,
+    avatar: "/diverse-user-avatars.png",
+    specialty: "Wallet: 0x3F7a...2B9d",
+  },
+]
+
+const prizes = [
+  { name: "1er Premio - Notebook Gamer", value: 800000, color: "hsl(var(--chart-1))" },
+  { name: "2do Premio - Smartphone", value: 300000, color: "hsl(var(--chart-2))" },
+  { name: "3er Premio - Tablet", value: 150000, color: "hsl(var(--chart-3))" },
+  { name: "4to Premio - Auriculares", value: 50000, color: "hsl(var(--chart-4))" },
+  { name: "5to Premio - Voucher", value: 25000, color: "hsl(var(--primary))" },
+]
+
 export default function SolanaWalletApp() {
   const [wallet, setWallet] = useState<PhantomProvider | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -179,6 +279,8 @@ export default function SolanaWalletApp() {
   const [showLandingPage, setShowLandingPage] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [purchaseStep, setPurchaseStep] = useState<"confirm" | "processing" | "success">("confirm")
+  const [raffleData, setRaffleData] = useState(generateRaffleData())
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
     const style = document.createElement("style")
@@ -229,6 +331,15 @@ export default function SolanaWalletApp() {
     return () => {
       document.head.removeChild(style)
     }
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRaffleData(generateRaffleData())
+      setCurrentTime(new Date())
+    }, 3000)
+
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -464,6 +575,42 @@ export default function SolanaWalletApp() {
     setShowLandingPage(true)
   }
 
+  const soldTickets = raffleNumbers.filter((ticket) => ticket.sold).length
+  const availableTickets = 1000 - soldTickets
+  const totalRevenue = soldTickets * 1000
+  const uniqueBuyers = new Set(raffleNumbers.filter((t) => t.buyer).map((t) => t.buyer)).size
+
+  const stats = [
+    {
+      title: "Números Vendidos",
+      value: soldTickets.toString(),
+      change: `${Math.round((soldTickets / 1000) * 100)}%`,
+      icon: Ticket,
+      color: "text-chart-1",
+    },
+    {
+      title: "Números Disponibles",
+      value: availableTickets.toString(),
+      change: `${Math.round((availableTickets / 1000) * 100)}%`,
+      icon: Hash,
+      color: "text-chart-2",
+    },
+    {
+      title: "Usuarios Anónimos",
+      value: uniqueBuyers.toString(),
+      change: "+12%",
+      icon: Users,
+      color: "text-chart-3",
+    },
+    {
+      title: "Recaudación Total",
+      value: `$${(totalRevenue / 1000).toFixed(0)}K`,
+      change: "+25%",
+      icon: DollarSign,
+      color: "text-chart-4",
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -640,16 +787,241 @@ export default function SolanaWalletApp() {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard de Rifas</h1>
-                <p className="text-muted-foreground">Explora y participa en las rifas disponibles</p>
+                <h1 className="text-4xl font-bold text-balance">Dashboard Rifa AVEIT UTN FRC</h1>
+                <p className="text-muted-foreground text-lg mt-2">
+                  Gran Rifa Anual 2024 • Actualizado: {currentTime.toLocaleTimeString()}
+                </p>
               </div>
-              <Button variant="outline" onClick={goToLandingPage} className="bg-transparent">
-                ← Volver al inicio
-              </Button>
+              <div className="flex items-center gap-4">
+                <Badge variant="default" className="text-lg px-4 py-2 bg-primary hover:bg-primary/90">
+                  <Gift className="w-5 h-5 mr-2" />
+                  Rifa Activa
+                </Badge>
+                <Badge variant="secondary" className="text-lg px-4 py-2">
+                  <Clock className="w-5 h-5 mr-2" />
+                  15 días restantes
+                </Badge>
+                <Button variant="outline" onClick={goToLandingPage} className="bg-transparent">
+                  ← Volver al inicio
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Raffle Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon
+              return (
+                <Card key={index} className="relative overflow-hidden border-l-4 border-l-primary">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+                    <Icon className={`h-5 w-5 ${stat.color}`} />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-balance">{stat.value}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <span className="text-chart-2 font-medium">{stat.change}</span> del total
+                    </p>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <Card className="border-t-4 border-t-primary">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-chart-1" />
+                  Ventas en Tiempo Real
+                </CardTitle>
+                <CardDescription>Números vendidos e ingresos durante las últimas 24 horas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={raffleData}>
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                    <XAxis dataKey="time" />
+                    <YAxis />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="ventas"
+                      stroke="hsl(var(--chart-1))"
+                      fill="hsl(var(--chart-1))"
+                      fillOpacity={0.3}
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="border-t-4 border-t-secondary">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-chart-2" />
+                  Premios de la Rifa
+                </CardTitle>
+                <CardDescription>Valor total de premios: $1.325.000</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={prizes}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={120}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {prizes.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                      }}
+                      formatter={(value) => [`$${(value as number).toLocaleString()}`, "Valor"]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="space-y-2 mt-4">
+                  {prizes.map((prize, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: prize.color }} />
+                        <span className="text-sm font-medium">{prize.name}</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">${prize.value.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="border-t-4 border-t-chart-3 mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Trophy className="w-6 h-6 text-chart-2" />
+                Top Usuarios Anónimos
+              </CardTitle>
+              <CardDescription>Los 5 usuarios anónimos con más números adquiridos</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {topBuyers.map((buyer, index) => (
+                  <div
+                    key={buyer.id}
+                    className={`flex items-center justify-between p-4 rounded-lg transition-colors ${
+                      index === 0
+                        ? "bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20"
+                        : "bg-muted/50 hover:bg-muted"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
+                        {index === 0 && <Crown className="w-6 h-6 text-chart-3" />}
+                        {index === 1 && <Medal className="w-6 h-6 text-chart-1" />}
+                        {index === 2 && <Award className="w-6 h-6 text-chart-2" />}
+                        {index > 2 && (
+                          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                            {index + 1}
+                          </div>
+                        )}
+                      </div>
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={buyer.avatar || "/placeholder.svg"} alt={buyer.name} />
+                        <AvatarFallback>
+                          {buyer.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold text-lg">{buyer.name}</h3>
+                        <p className="text-muted-foreground">{buyer.specialty}</p>
+                        <p className="text-xs text-muted-foreground">${buyer.amount.toLocaleString()} invertidos</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">{buyer.tickets}</div>
+                      <div className="text-sm text-chart-2 font-medium">números</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className="border-l-4 border-l-chart-1">
+              <CardHeader>
+                <CardTitle className="text-lg">Progreso de Ventas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Progress value={(soldTickets / 1000) * 100} className="h-3" />
+                <p className="text-sm text-muted-foreground mt-2">{soldTickets} de 1000 números vendidos</p>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-chart-2">
+              <CardHeader>
+                <CardTitle className="text-lg">Meta de Recaudación</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Progress value={(totalRevenue / 1000000) * 100} className="h-3" />
+                <p className="text-sm text-muted-foreground mt-2">
+                  ${(totalRevenue / 1000).toFixed(0)}K de $1000K objetivo
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-chart-3">
+              <CardHeader>
+                <CardTitle className="text-lg">Tiempo Restante</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Progress value={75} className="h-3" />
+                <p className="text-sm text-muted-foreground mt-2">15 días de 60 días totales</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="border-t-4 border-t-chart-4 mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Hash className="w-5 h-5 text-chart-4" />
+                Últimos Números Vendidos
+              </CardTitle>
+              <CardDescription>Los 20 números más recientemente adquiridos</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-4 md:grid-cols-10 gap-2">
+                {raffleNumbers
+                  .filter((ticket) => ticket.sold)
+                  .slice(-20)
+                  .map((ticket, index) => (
+                    <Badge key={index} variant="secondary" className="justify-center py-2">
+                      {ticket.number}
+                    </Badge>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Raffle Grid - mantener las rifas originales */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {mockRaffles.map((raffle, index) => (
               <Card
@@ -715,153 +1087,156 @@ export default function SolanaWalletApp() {
             ))}
           </div>
 
-          {/* Stake Guarantee Section */}
-          <div className="mb-8">
-            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-green-800">
-                  <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-4 h-4 text-white" />
-                  </div>
-                  <span>Stake de Garantía</span>
-                </CardTitle>
-                <CardDescription className="text-green-700">
-                  El stake funciona como garantía de transparencia, reemplazando el rol de Lotería.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {(() => {
-                  // Calculate total stake amount from all raffles
-                  const totalRaised = mockRaffles.reduce((sum, raffle) => sum + raffle.totalRaised, 0)
-                  const totalStakeAmount = mockRaffles.reduce(
-                    (sum, raffle) => sum + (raffle.totalRaised * raffle.stakePercent) / 100,
-                    0,
-                  )
-                  const stakeTarget = 50 // Mock target of 50 SOL for demonstration
-                  const stakeProgress = Math.min((totalStakeAmount / stakeTarget) * 100, 100)
-
-                  return (
-                    <>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-800">{totalStakeAmount.toFixed(2)} SOL</div>
-                          <div className="text-sm text-green-600">Monto Retenido</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-800">{stakeProgress.toFixed(1)}%</div>
-                          <div className="text-sm text-green-600">Progreso del Stake</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-800">{stakeTarget} SOL</div>
-                          <div className="text-sm text-green-600">Objetivo</div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-green-700">Progreso del Stake:</span>
-                          <span className="font-semibold text-green-800">
-                            {totalStakeAmount.toFixed(2)} / {stakeTarget} SOL
-                          </span>
-                        </div>
-                        <div className="w-full bg-green-200 rounded-full h-3">
-                          <div
-                            className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-500"
-                            style={{ width: `${stakeProgress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      <div className="bg-white/50 p-4 rounded-lg border border-green-200">
-                        <p className="text-sm text-green-700 leading-relaxed">
-                          <strong>¿Cómo funciona?</strong> Un porcentaje de cada venta se retiene como stake de
-                          garantía. Este fondo asegura la transparencia del proceso y reemplaza la necesidad de una
-                          autoridad central como Lotería Nacional. Los fondos se liberan automáticamente al finalizar
-                          cada rifa.
-                        </p>
-                      </div>
-                    </>
-                  )
-                })()}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Wallet Status Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Wallet Status Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Wallet className="w-5 h-5" />
-                  <span>Estado de Wallet</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Estado:</span>
-                    <Badge variant={isConnected ? "default" : "secondary"}>
-                      {isConnected ? "Conectado" : "Desconectado"}
-                    </Badge>
-                  </div>
-                  {isConnected && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Dirección:</span>
-                      <span className="font-mono text-sm">{formatAddress(publicKey)}</span>
+          {/* Sidebar - mantener funcionalidad original */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Stake Guarantee Section */}
+            <div className="mb-8">
+              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-green-800">
+                    <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-white" />
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    <span>Stake de Garantía</span>
+                  </CardTitle>
+                  <CardDescription className="text-green-700">
+                    El stake funciona como garantía de transparencia, reemplazando el rol de Lotería.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {(() => {
+                    // Calculate total stake amount from all raffles
+                    const totalRaised = mockRaffles.reduce((sum, raffle) => sum + raffle.totalRaised, 0)
+                    const totalStakeAmount = mockRaffles.reduce(
+                      (sum, raffle) => sum + (raffle.totalRaised * raffle.stakePercent) / 100,
+                      0,
+                    )
+                    const stakeTarget = 50 // Mock target of 50 SOL for demonstration
+                    const stakeProgress = Math.min((totalStakeAmount / stakeTarget) * 100, 100)
 
-            {/* Features Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Características</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
-                    <span>Rifas descentralizadas</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
-                    <span>Pagos en SOL</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full"></div>
-                    <span>Selección aleatoria</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+                    return (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-800">{totalStakeAmount.toFixed(2)} SOL</div>
+                            <div className="text-sm text-green-600">Monto Retenido</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-800">{stakeProgress.toFixed(1)}%</div>
+                            <div className="text-sm text-green-600">Progreso del Stake</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-800">{stakeTarget} SOL</div>
+                            <div className="text-sm text-green-600">Objetivo</div>
+                          </div>
+                        </div>
 
-            {/* Actions Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Mis Rifas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start bg-transparent"
-                    disabled={!isConnected}
-                    onClick={() => setShowTicketsModal(true)}
-                  >
-                    Ver Mis Boletas ({userTickets.length})
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start bg-transparent" disabled={!isConnected}>
-                    Historial de Rifas
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start bg-transparent" disabled={!isConnected}>
-                    Crear Rifa
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-green-700">Progreso del Stake:</span>
+                            <span className="font-semibold text-green-800">
+                              {totalStakeAmount.toFixed(2)} / {stakeTarget} SOL
+                            </span>
+                          </div>
+                          <div className="w-full bg-green-200 rounded-full h-3">
+                            <div
+                              className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-500"
+                              style={{ width: `${stakeProgress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        <div className="bg-white/50 p-4 rounded-lg border border-green-200">
+                          <p className="text-sm text-green-700 leading-relaxed">
+                            <strong>¿Cómo funciona?</strong> Un porcentaje de cada venta se retiene como stake de
+                            garantía. Este fondo asegura la transparencia del proceso y reemplaza la necesidad de una
+                            autoridad central como Lotería Nacional. Los fondos se liberan automáticamente al finalizar
+                            cada rifa.
+                          </p>
+                        </div>
+                      </>
+                    )
+                  })()}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Wallet Status Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Wallet Status Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Wallet className="w-5 h-5" />
+                    <span>Estado de Wallet</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Estado:</span>
+                      <Badge variant={isConnected ? "default" : "secondary"}>
+                        {isConnected ? "Conectado" : "Desconectado"}
+                      </Badge>
+                    </div>
+                    {isConnected && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Dirección:</span>
+                        <span className="font-mono text-sm">{formatAddress(publicKey)}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Features Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Características</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <span>Rifas descentralizadas</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <span>Pagos en SOL</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <span>Selección aleatoria</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Actions Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mis Rifas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start bg-transparent"
+                      disabled={!isConnected}
+                      onClick={() => setShowTicketsModal(true)}
+                    >
+                      Ver Mis Boletas ({userTickets.length})
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start bg-transparent" disabled={!isConnected}>
+                      Historial de Rifas
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start bg-transparent" disabled={!isConnected}>
+                      Crear Rifa
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </main>
       )}
