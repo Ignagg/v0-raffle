@@ -86,7 +86,7 @@ const topBuyers = [
   {
     id: 1,
     name: "Usuario Anónimo #1",
-    specialty: "Estudiante de Ingeniería",
+    specialty: "0xA1B3C5D7E9F11223344556677889900AABBCCDDE",
     tickets: 47,
     amount: 23500,
     avatar: "/diverse-user-avatars.png",
@@ -94,7 +94,7 @@ const topBuyers = [
   {
     id: 2,
     name: "Usuario Anónimo #2",
-    specialty: "Docente UTN",
+    specialty: "0xFF112233445566778899AABBCCDDEEFF00112233",
     tickets: 35,
     amount: 17500,
     avatar: "/diverse-user-avatars.png",
@@ -102,7 +102,7 @@ const topBuyers = [
   {
     id: 3,
     name: "Usuario Anónimo #3",
-    specialty: "Graduado",
+    specialty: "0x1234567890ABCDEF1234567890ABCDEF12345678",
     tickets: 28,
     amount: 14000,
     avatar: "/diverse-user-avatars.png",
@@ -110,7 +110,7 @@ const topBuyers = [
   {
     id: 4,
     name: "Usuario Anónimo #4",
-    specialty: "Personal Administrativo",
+    specialty: "0xABCDEABCDEABCDEABCDEABCDEABCDEABCDEABCD",
     tickets: 22,
     amount: 11000,
     avatar: "/diverse-user-avatars.png",
@@ -118,7 +118,7 @@ const topBuyers = [
   {
     id: 5,
     name: "Usuario Anónimo #5",
-    specialty: "Estudiante de Sistemas",
+    specialty: "0x999888777666555444333222111000AAAFFFEEE",
     tickets: 18,
     amount: 9000,
     avatar: "/diverse-user-avatars.png",
